@@ -13,6 +13,19 @@ export default function PostBlock({ post }: PostBlockProps) {
   const dateTemp = post.date.split('T')
   const dateFormated = dateTemp[0].split('-').reverse().join("/")
 
+  const removeFromReadLater = (post: PostInterface) =>{
+    console.log(post)
+  }
+  const addToReadLater = (post: PostInterface) =>{
+    console.log(post)
+  }
+  const removeFromFavorites = (post: PostInterface) =>{
+    console.log(post)
+  }
+  const addToFavorites = (post: PostInterface) =>{
+    console.log(post)
+  }
+
   return (
     <div className="post-block p-2 rounded-md">
       <Link href={`/blog/${post.slug}`}>
