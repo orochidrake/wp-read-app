@@ -76,4 +76,9 @@ export default class Post implements PostInterface {
     const data:PostInterface = await fetchAPI(pathUrl)
     return data;
   }
+
+  async getPostById(pathUrl: string): Promise<any> {
+    const data:PostInterface = await fetchAPI(pathUrl)
+    return data;
+  }
 }

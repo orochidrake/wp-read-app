@@ -3,10 +3,8 @@ import Image from "next/image";
 import defaultImage from "@/assets/images/default.jpg";
 import PostInterface from "@/models/post/interface";
 
-interface PostBlockProps {
-  post: PostInterface;
-}
-export default function PostBlock({ post }: PostBlockProps) {
+export default function PostBlock({ post }: any) {
+
   const isReadLater = false
   const isFavorite = false
   const imgPost = post.defaultImg ? post.defaultImg[0] : defaultImage
@@ -28,7 +26,7 @@ export default function PostBlock({ post }: PostBlockProps) {
 
   return (
     <div className="post-block p-2 rounded-md">
-      <Link href={`/blog/${post.slug}`}>
+      <Link href={`/blog/${post.id}`}>
         <div className="relative h-80 transition-all duration-200 ease-linear hover:-translate-y-[3px]">
           <Image
             src={imgPost}
@@ -38,7 +36,7 @@ export default function PostBlock({ post }: PostBlockProps) {
           />
         </div>
       </Link>
-      <Link href={`/blog/${post.slug}`} className="post-content my-4">
+      <Link href={`/blog/${post.id}`} className="post-content my-4">
         <h3 className="text-2xl py-4">{post.title.rendered}</h3>
 
       </Link>
