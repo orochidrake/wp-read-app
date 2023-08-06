@@ -1,11 +1,11 @@
 import { ReactNode } from "react";
-import { Nav } from "../Nav";
 import { Footer } from "../Footer";
+import { Header } from "../Header";
 
 export const AppLayout = ({ children }: { children: ReactNode }) => {
   return (
     <main>
-      <Nav />
+      <Header />
       <>{children}</>
       <Footer />
     </main>
