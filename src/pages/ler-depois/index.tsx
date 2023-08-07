@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { GetStaticProps, InferGetStaticPropsType } from "next";
+import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import PostCards from "@/components/PostCards";
 import PostCreator  from "@/models/post/factory";
 import PostInterface from "@/models/post/interface"
+import Nav from "@/components/Nav";
 
-interface PeolpePageProps {
+interface ReadLaterPage {
   _posts: PostInterface[];
 }
 
-export default function PeolpePage({ _posts }: InferGetStaticPropsType<typeof getStaticProps>) {
+export default function ReadLaterPage({ _posts }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [posts, setPosts] = useState<PostInterface[]>(
     _posts.map((p: unknown) => {
         const _p = PostCreator.factory(p)
@@ -72,14 +73,15 @@ export default function PeolpePage({ _posts }: InferGetStaticPropsType<typeof ge
   );
 }
 
-export const getStaticProps: GetStaticProps<PeolpePageProps> = async () => {
+export const getServerSideProps: GetServerSideProps<ReadLaterPage> = async (ctx) => {
+  const items = ctx.query.items;
   let _p = PostCreator.factory()
-  const _posts = await _p.getPosts('/posts?categories=1317');
+  const _posts = await _p.getPosts(`/posts?include=${items}`);
 
   return {
     props: {
       _posts,
     },
-    revalidate: 3600,
   };
 };
+

@@ -1,64 +1,55 @@
 import { useState } from "react";
-import { GetStaticProps, InferGetStaticPropsType } from "next";
+import { GetServerSideProps, GetStaticProps, InferGetStaticPropsType, InferGetServerSidePropsType } from "next";
 import PostCards from "@/components/PostCards";
 import PostCreator  from "@/models/post/factory";
 import PostInterface from "@/models/post/interface"
+import React from "react";
 
-interface PeolpePageProps {
+interface HomePageProps {
   _posts: PostInterface[];
 }
 
-export default function PeolpePage({ _posts }: InferGetStaticPropsType<typeof getStaticProps>) {
+export default function FavoritePage({ _posts }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [posts, setPosts] = useState<PostInterface[]>(
     _posts.map((p: unknown) => {
         const _p = PostCreator.factory(p)
         return _p
-      })
-    )
+    })
+  )
 
   const [sortedPosts, setSortedPosts] = useState(posts);
-  const [sortDirectionLegth, setSortDirectionByLegth] = useState<"asc" | "desc">("asc");
-  const [sortDirectionAge, setSortDirectionByAge] = useState<"asc" | "desc">("asc");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   const handleSortByLength = () => {
     const sorted = [...sortedPosts].sort((a, b) => {
       const lengthDiff = a.content.rendered.length - b.content.rendered.length;
-      return sortDirectionLegth === "asc" ? lengthDiff : -lengthDiff;
+      return sortDirection === "asc" ? lengthDiff : -lengthDiff;
     });
     setSortedPosts(sorted);
-    setSortDirectionByLegth((prev) => (prev === "asc" ? "desc" : "asc"));
+    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
   };
 
   const handleSortByDate = () => {
     const sorted = [...sortedPosts].sort((a, b) => {
       const dateDiff = new Date(a.date).getTime() - new Date(b.date).getTime();
-      return sortDirectionAge === "asc" ? dateDiff : -dateDiff;
+      return sortDirection === "asc" ? dateDiff : -dateDiff;
     });
     setSortedPosts(sorted);
-    setSortDirectionByAge((prev) => (prev === "asc" ? "desc" : "asc"));
+    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
   };
+
 
   const handleResetSort = () => {
     setSortedPosts(posts);
   };
 
-
   return (
     <>
       <div className="container mx-auto py-8 ">
         <div>
-
-          
-        <div className="grid grid-cols-4">
-        <p>Ordenar Artigos por:</p>
-          <button onClick={handleSortByLength}>
-          {sortDirectionLegth === "asc" ? "Artigos mais curtos" : "Artigos mais longos"}
-            </button>
-          <button onClick={handleSortByDate}>
-            {sortDirectionAge === "asc" ? "Artigos mais antigos" : "Artigos mais recentes"}
-          </button>
-          <button onClick={handleResetSort}>Resetar Ordenação</button>
-        </div>
+          <button onClick={handleSortByLength}>Sort by Length</button>
+          <button onClick={handleSortByDate}>Sort by Date</button>
+          <button onClick={handleResetSort}>Reset Sort</button>
         </div>
         <div className="my-6 grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-2.5 gap-y-2.5">
           {sortedPosts.map((post) => {
@@ -72,14 +63,15 @@ export default function PeolpePage({ _posts }: InferGetStaticPropsType<typeof ge
   );
 }
 
-export const getStaticProps: GetStaticProps<PeolpePageProps> = async () => {
+export const getServerSideProps: GetServerSideProps<PostPageProps> = async (ctx) => {
+  const items = ctx.query.items;
   let _p = PostCreator.factory()
-  const _posts = await _p.getPosts('/posts?categories=1317');
+  const _posts = await _p.getPosts(`/posts?include=${items}`);
 
   return {
     props: {
       _posts,
     },
-    revalidate: 3600,
   };
 };
+

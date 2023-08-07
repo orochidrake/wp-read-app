@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export const Footer = () => {
+export default function Footer(){
   return (
     <footer className="container mx-auto">
       <div className="text-center border-t py-8">

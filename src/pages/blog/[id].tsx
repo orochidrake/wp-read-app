@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import PostInterface from '@/models/post/interface';
 import PostCreator from '@/models/post/factory';
-import PostBlock from '@/components/PostBlock';
+import PostFullBlock from '@/components/PostFullBlock';
 import { fetchAPI } from '@/lib/base';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Link from 'next/link';
 
 interface PostPageProps {
   _post: PostInterface;
@@ -15,9 +18,12 @@ export default function PostPage({ _post }: InferGetServerSidePropsType<typeof g
   )
   return (
     <>
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-8 mb-96">
+        <Link href={"/"}>
+          <FontAwesomeIcon icon={faArrowLeft} bounce /> Voltar
+        </Link>
         <div className="my-6 grid grid-flow-row grid-cols-1">
-          <PostBlock post={_post} />
+          <PostFullBlock post={_post} />
         </div>
       </div>
     </>

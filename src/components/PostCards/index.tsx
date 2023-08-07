@@ -2,30 +2,19 @@ import Link from "next/link";
 import Image from "next/image";
 import defaultImage from "@/assets/images/default.jpg";
 import PostInterface from "@/models/post/interface";
+import ButtonsComponents from "../Buttons";
 
-export default function PostBlock({ post }: any) {
+interface PostCards{
+  post: PostInterface
+}
 
-  const isReadLater = false
-  const isFavorite = false
+export default function PostCards({ post }: PostCards) {
   const imgPost = post.defaultImg ? post.defaultImg[0] : defaultImage
   const dateTemp = post.date.split('T')
   const dateFormated = dateTemp[0].split('-').reverse().join("/")
 
-  const removeFromReadLater = (post: PostInterface) =>{
-    console.log(post)
-  }
-  const addToReadLater = (post: PostInterface) =>{
-    console.log(post)
-  }
-  const removeFromFavorites = (post: PostInterface) =>{
-    console.log(post)
-  }
-  const addToFavorites = (post: PostInterface) =>{
-    console.log(post)
-  }
-
   return (
-    <div className="post-block p-2 rounded-md">
+    <div className="post-block p-2 rounded-md bg-amber-50">
       <Link href={`/blog/${post.id}`}>
         <div className="relative h-80 transition-all duration-200 ease-linear hover:-translate-y-[3px]">
           <Image
@@ -37,18 +26,13 @@ export default function PostBlock({ post }: any) {
         </div>
       </Link>
       <Link href={`/blog/${post.id}`} className="post-content my-4">
-        <h3 className="text-2xl py-4">{post.title.rendered}</h3>
+        <h3 className="text-2xl py-4 text-slate-800">{post.title.rendered}</h3>
 
       </Link>
-      <div className="container" >
+      <div className="container text-slate-800" >
         <small>{dateFormated}</small>
         <div className="italic" dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }}>{ }</div>
-        <button onClick={() => (isReadLater ? removeFromReadLater(post) : addToReadLater(post))}>
-          {isReadLater ? "Remover da Lista" : "Ler Depois"}
-        </button>
-        <button onClick={() => (isFavorite ? removeFromFavorites(post) : addToFavorites(post))}>
-          {isFavorite ? "Remover dos Favoritos" : "Favorito"}
-        </button>
+        <ButtonsComponents idItem={post.id}/>
       </div>
     </div>
   );

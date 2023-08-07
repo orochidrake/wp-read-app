@@ -1,24 +1,35 @@
+import { useAppContext } from "@/context/AppContext";
 import Link from "next/link";
 
-export const Nav = () => {
+export default function Nav(){
+  const { favIds, laterIds } = useAppContext();
+  
+
   return (
-    <header className="container mx-auto py-4 px-4">
-      <div className="navbar w-full md:w-3/5 mx-auto border-b-2">
-        <div className="flex items-center justify-center pb-4 text-base md:text-xl">
-          <Link href="/" className="px-4">
-            Home
-          </Link>
-          <Link href="#" className="px-4">
-            Blog
-          </Link>
-          <Link href="#" className="px-4">
-            About
-          </Link>
-          <Link href="#" className="px-4">
-            Contact
-          </Link>
-        </div>
+    <nav className="flex justify-between bg-gray-800 text-white p-4">
+      <div className="flex space-x-4">
+        <Link href="/" className="hover:text-gray-300">
+          Página inicial
+        </Link>
+        <Link href="/categoria/desenvolvimento-pessoal" className="hover:text-gray-300">
+          Desenvolvimento Pessoal
+        </Link>
+        <Link href="/categoria/estrategia-e-gestao" className="hover:text-gray-300">
+          Estratégia e Gestão
+        </Link>
+        <Link href="/categoria/gestao-de-pessoas" className="hover:text-gray-300">
+          Gestão de Pessoas
+        </Link>
+        <Link href={`/ler-depois?itemsId=${laterIds}`}>
+          Ler depois
+        </Link>
+        <Link href={`/favoritos?itemsId=${favIds}`} className="hover:text-gray-300">
+          Favoritos
+        </Link>
+        <Link href="/anotacoes" className="hover:text-gray-300">
+          Anotações
+        </Link>
       </div>
-    </header>
+    </nav>
   );
 };

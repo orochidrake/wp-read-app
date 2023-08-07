@@ -1,5 +1,3 @@
-import { Post } from '@prisma/client';
-import prisma from './prisma'
 
 const API_URL = <string>process.env.NEXT_PUBLIC_WORDPRESS_API_ENDPOINT;
 
