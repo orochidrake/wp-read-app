@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 import PostCards from "@/components/PostCards";
-import PostCreator  from "@/models/post/factory";
+import PostCreator from "@/models/post/factory";
 import PostInterface from "@/models/post/interface"
 
 interface StrategyPageProps {
@@ -11,10 +11,10 @@ interface StrategyPageProps {
 export default function StrategyPage({ _posts }: InferGetStaticPropsType<typeof getStaticProps>) {
   const [posts, setPosts] = useState<PostInterface[]>(
     _posts.map((p: unknown) => {
-        const _p = PostCreator.factory(p)
-        return _p
-      })
-    )
+      const _p = PostCreator.factory(p)
+      return _p
+    })
+  )
 
   const [sortedPosts, setSortedPosts] = useState(posts);
   const [sortDirectionLegth, setSortDirectionByLegth] = useState<"asc" | "desc">("asc");
@@ -46,19 +46,17 @@ export default function StrategyPage({ _posts }: InferGetStaticPropsType<typeof 
   return (
     <>
       <div className="container mx-auto py-8 ">
-        <div>
 
-          
+
         <div className="grid grid-cols-4">
-        <p>Ordenar Artigos por:</p>
+          <p>Ordenar Artigos por:</p>
           <button onClick={handleSortByLength}>
-          {sortDirectionLegth === "asc" ? "Artigos mais curtos" : "Artigos mais longos"}
-            </button>
+            {sortDirectionLegth === "asc" ? "Artigos mais curtos" : "Artigos mais longos"}
+          </button>
           <button onClick={handleSortByDate}>
             {sortDirectionAge === "asc" ? "Artigos mais antigos" : "Artigos mais recentes"}
           </button>
           <button onClick={handleResetSort}>Resetar Ordenação</button>
-        </div>
         </div>
         <div className="my-6 grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-2.5 gap-y-2.5">
           {sortedPosts.map((post) => {

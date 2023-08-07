@@ -1,20 +1,20 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
-import PostCreator from "@/models/post/factory";
-import PostInterface from "@/models/post/interface";
 import PostCards from "@/components/PostCards";
+import PostCreator from "@/models/post/factory";
+import PostInterface from "@/models/post/interface"
 
-interface DevelopmentPageProps {
+interface PeolpePageProps {
   _posts: PostInterface[];
 }
 
-export default function DevelopmentPage({ _posts }: InferGetStaticPropsType<typeof getStaticProps>) {
+export default function PeolpePage({ _posts }: InferGetStaticPropsType<typeof getStaticProps>) {
   const [posts, setPosts] = useState<PostInterface[]>(
     _posts.map((p: unknown) => {
-        const _p = PostCreator.factory(p)
-        return _p
-      })
-    )
+      const _p = PostCreator.factory(p)
+      return _p
+    })
+  )
 
   const [sortedPosts, setSortedPosts] = useState(posts);
   const [sortDirectionLegth, setSortDirectionByLegth] = useState<"asc" | "desc">("asc");
@@ -46,19 +46,17 @@ export default function DevelopmentPage({ _posts }: InferGetStaticPropsType<type
   return (
     <>
       <div className="container mx-auto py-8 ">
-        <div>
 
-          
+
         <div className="grid grid-cols-4">
-        <p>Ordenar Artigos por:</p>
+          <p>Ordenar Artigos por:</p>
           <button onClick={handleSortByLength}>
-          {sortDirectionLegth === "asc" ? "Artigos mais curtos" : "Artigos mais longos"}
-            </button>
+            {sortDirectionLegth === "asc" ? "Artigos mais curtos" : "Artigos mais longos"}
+          </button>
           <button onClick={handleSortByDate}>
             {sortDirectionAge === "asc" ? "Artigos mais antigos" : "Artigos mais recentes"}
           </button>
           <button onClick={handleResetSort}>Resetar Ordenação</button>
-        </div>
         </div>
         <div className="my-6 grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-2.5 gap-y-2.5">
           {sortedPosts.map((post) => {
@@ -72,9 +70,9 @@ export default function DevelopmentPage({ _posts }: InferGetStaticPropsType<type
   );
 }
 
-export const getStaticProps: GetStaticProps<DevelopmentPageProps> = async () => {
+export const getStaticProps: GetStaticProps<PeolpePageProps> = async () => {
   let _p = PostCreator.factory()
-  const posts = await _p.getPosts('/posts?categories=1309');
+  const _posts = await _p.getPosts('/posts?categories=1317');
 
   return {
     props: {

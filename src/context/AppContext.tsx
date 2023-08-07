@@ -5,6 +5,8 @@ type AppContextType = {
   laterIds: number[];
   updateFavorites: (id: number) => void;
   updateLaterIds: (id: number) => void;
+  removeFavorites: (id: number) => void;
+  removeLaterIds: (id: number) => void;
 };
 
 const AppContext = createContext<AppContextType>({
@@ -12,6 +14,8 @@ const AppContext = createContext<AppContextType>({
   laterIds: [],
   updateFavorites: () => {},
   updateLaterIds: () => {},
+  removeFavorites: () => {},
+  removeLaterIds: () => {},
 });
 
 export function useAppContext() {
@@ -63,9 +67,29 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
     }
   };
 
+  const removeFavorites = (id: number) => {
+    const existingData = localStorage.getItem("favorites");
+    if (existingData) {
+      const ids = new Set<number>(JSON.parse(existingData));
+      ids.delete(id);
+      localStorage.setItem("favorites", JSON.stringify(Array.from(ids)));
+      setFavIds(Array.from(ids));
+    }
+  };
+
+  const removeLaterIds = (id: number) => {
+    const existingData = localStorage.getItem("readLater");
+    if (existingData) {
+      const ids = new Set<number>(JSON.parse(existingData));
+      ids.delete(id);
+      localStorage.setItem("readLater", JSON.stringify(Array.from(ids)));
+      setLaterIds(Array.from(ids));
+    }
+  };
+
   return (
     <AppContext.Provider
-      value={{ favIds, laterIds, updateFavorites, updateLaterIds }}
+      value={{ favIds, laterIds, updateFavorites, updateLaterIds, removeFavorites, removeLaterIds }}
     >
       {children}
     </AppContext.Provider>

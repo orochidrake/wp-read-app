@@ -1,21 +1,35 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import PostCards from "@/components/PostCards";
-import PostCreator  from "@/models/post/factory";
+import PostCreator from "@/models/post/factory";
 import PostInterface from "@/models/post/interface"
-import Nav from "@/components/Nav";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Link from "next/link";
+import { useAppContext } from "@/context/AppContext";
+import { useRouter } from "next/router";
 
 interface ReadLaterPage {
   _posts: PostInterface[];
 }
 
 export default function ReadLaterPage({ _posts }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const { laterIds } = useAppContext();
+  const router = useRouter();
   const [posts, setPosts] = useState<PostInterface[]>(
     _posts.map((p: unknown) => {
-        const _p = PostCreator.factory(p)
-        return _p
-      })
-    )
+      const _p = PostCreator.factory(p)
+      return _p
+    })
+  )
+
+  useEffect(() => {
+    const formattedLaterIds = laterIds.join(",");
+
+    if (router.query.itemsId !== formattedLaterIds ) {
+      router.push('/');
+    }
+  }, [laterIds, router]);
 
   const [sortedPosts, setSortedPosts] = useState(posts);
   const [sortDirectionLegth, setSortDirectionByLegth] = useState<"asc" | "desc">("asc");
@@ -47,19 +61,18 @@ export default function ReadLaterPage({ _posts }: InferGetServerSidePropsType<ty
   return (
     <>
       <div className="container mx-auto py-8 ">
-        <div>
-
-          
+        <Link href={"/"}>
+          <FontAwesomeIcon icon={faArrowLeft} bounce /> Voltar
+        </Link>
         <div className="grid grid-cols-4">
-        <p>Ordenar Artigos por:</p>
+          <p>Ordenar Artigos por:</p>
           <button onClick={handleSortByLength}>
-          {sortDirectionLegth === "asc" ? "Artigos mais curtos" : "Artigos mais longos"}
-            </button>
+            {sortDirectionLegth === "asc" ? "Artigos mais curtos" : "Artigos mais longos"}
+          </button>
           <button onClick={handleSortByDate}>
             {sortDirectionAge === "asc" ? "Artigos mais antigos" : "Artigos mais recentes"}
           </button>
           <button onClick={handleResetSort}>Resetar Ordenação</button>
-        </div>
         </div>
         <div className="my-6 grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-2.5 gap-y-2.5">
           {sortedPosts.map((post) => {
@@ -74,9 +87,10 @@ export default function ReadLaterPage({ _posts }: InferGetServerSidePropsType<ty
 }
 
 export const getServerSideProps: GetServerSideProps<ReadLaterPage> = async (ctx) => {
-  const items = ctx.query.items;
+  const itemsId = ctx.query.itemsId;
   let _p = PostCreator.factory()
-  const _posts = await _p.getPosts(`/posts?include=${items}`);
+  const _posts = await _p.getPosts(`/posts?include=${itemsId}`);
+
 
   return {
     props: {

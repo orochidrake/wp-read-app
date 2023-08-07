@@ -1,55 +1,72 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { GetServerSideProps, GetStaticProps, InferGetStaticPropsType, InferGetServerSidePropsType } from "next";
 import PostCards from "@/components/PostCards";
-import PostCreator  from "@/models/post/factory";
+import PostCreator from "@/models/post/factory";
 import PostInterface from "@/models/post/interface"
 import React from "react";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Link from "next/link";
+import { useAppContext } from "@/context/AppContext";
+import { useRouter } from "next/router";
+import { redirect } from "next/dist/server/api-utils";
 
-interface HomePageProps {
+interface FavoritePageProps {
   _posts: PostInterface[];
 }
 
-export default function FavoritePage({ _posts }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function FavoritePage({ _posts }: FavoritePageProps) {
+  const { favIds } = useAppContext();
+  const router = useRouter();
   const [posts, setPosts] = useState<PostInterface[]>(
     _posts.map((p: unknown) => {
-        const _p = PostCreator.factory(p)
-        return _p
+      const _p = PostCreator.factory(p)
+      return _p
     })
   )
 
   const [sortedPosts, setSortedPosts] = useState(posts);
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [sortDirectionLegth, setSortDirectionByLegth] = useState<"asc" | "desc">("asc");
+  const [sortDirectionAge, setSortDirectionByAge] = useState<"asc" | "desc">("asc");
 
   const handleSortByLength = () => {
     const sorted = [...sortedPosts].sort((a, b) => {
       const lengthDiff = a.content.rendered.length - b.content.rendered.length;
-      return sortDirection === "asc" ? lengthDiff : -lengthDiff;
+      return sortDirectionLegth === "asc" ? lengthDiff : -lengthDiff;
     });
     setSortedPosts(sorted);
-    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    setSortDirectionByLegth((prev) => (prev === "asc" ? "desc" : "asc"));
   };
 
   const handleSortByDate = () => {
     const sorted = [...sortedPosts].sort((a, b) => {
       const dateDiff = new Date(a.date).getTime() - new Date(b.date).getTime();
-      return sortDirection === "asc" ? dateDiff : -dateDiff;
+      return sortDirectionAge === "asc" ? dateDiff : -dateDiff;
     });
     setSortedPosts(sorted);
-    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    setSortDirectionByAge((prev) => (prev === "asc" ? "desc" : "asc"));
   };
-
 
   const handleResetSort = () => {
     setSortedPosts(posts);
   };
 
+
   return (
     <>
       <div className="container mx-auto py-8 ">
-        <div>
-          <button onClick={handleSortByLength}>Sort by Length</button>
-          <button onClick={handleSortByDate}>Sort by Date</button>
-          <button onClick={handleResetSort}>Reset Sort</button>
+      <Link href={"/"}>
+          <FontAwesomeIcon icon={faArrowLeft} bounce /> Voltar
+        </Link>
+        <div className="grid grid-cols-4">
+          <p>Ordenar Artigos por:</p>
+          <button onClick={handleSortByLength}>
+            {sortDirectionLegth === "asc" ? "Artigos mais curtos" : "Artigos mais longos"}
+          </button>
+          <button onClick={handleSortByDate}>
+            {sortDirectionAge === "asc" ? "Artigos mais antigos" : "Artigos mais recentes"}
+          </button>
+          <button onClick={handleResetSort}>Resetar Ordenação</button>
         </div>
         <div className="my-6 grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-2.5 gap-y-2.5">
           {sortedPosts.map((post) => {
@@ -62,16 +79,19 @@ export default function FavoritePage({ _posts }: InferGetServerSidePropsType<typ
     </>
   );
 }
+export const getServerSideProps: GetServerSideProps<FavoritePageProps> = async (ctx) => {
+  const itemsId = ctx.query.itemsId;
 
-export const getServerSideProps: GetServerSideProps<PostPageProps> = async (ctx) => {
-  const items = ctx.query.items;
-  let _p = PostCreator.factory()
-  const _posts = await _p.getPosts(`/posts?include=${items}`);
+  let _p = PostCreator.factory();
+  const _posts = await _p.getPosts(`/posts?include=${itemsId}`);
 
   return {
     props: {
-      _posts,
-    },
+      _posts
+    }
   };
 };
+
+
+
 
