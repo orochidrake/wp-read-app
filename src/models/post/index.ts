@@ -1,10 +1,11 @@
 import { fetchAPI } from "@/lib/base";
 import PostInterface from './interface';
+import FeaturedMediaCreator from "../featuredMedia/factory";
+import FeaturedMediaInterface from "../featuredMedia/interface";
 
 export default class Post implements PostInterface {
   id: number;
   date: string;
-  dateGmt: string;
   guid: {
     rendered: string;
   };
@@ -22,38 +23,16 @@ export default class Post implements PostInterface {
     rendered: string;
     protected: boolean;
   };
-  author: number;
-  featuredMedia: number;
-  meta: any[];
+  featured_media: FeaturedMediaInterface;
   categories: number[];
   defaultImg: [string, number, number, boolean];
-  videoDestaque: string;
-  imageDestaque: string;
-  categoriesData: {
-    termId: number;
-    name: string;
-    slug: string;
-    termGroup: number;
-    termTaxonomyId: number;
-    taxonomy: string;
-    description: string;
-    parent: number;
-    count: number;
-    filter: string;
-    catId: number;
-    categoryCount: number;
-    categoryDescription: string;
-    catName: string;
-    categoryNicename: string;
-    categoryParent: number;
-  }[];
-  readLater: boolean;
-  favorite: boolean;
+ 
+
 
   constructor() {
     this.id = 0;
     this.date = '';
-    this.dateGmt = '';
+
     this.guid = { rendered: '' };
     this.slug = '';
     this.type = '';
@@ -61,24 +40,18 @@ export default class Post implements PostInterface {
     this.title = { rendered: '' };
     this.content = { rendered: '', protected: false };
     this.excerpt = { rendered: '', protected: false };
-    this.author = 0;
-    this.featuredMedia = 0;
-    this.meta = [];
+    this.featured_media = FeaturedMediaCreator.factory({});
     this.categories = [];
     this.defaultImg = ['', 0, 0, false];
-    this.videoDestaque = '';
-    this.imageDestaque = '';
-    this.categoriesData = [];
-    this.favorite = false;
-    this.readLater = false;
+    
   }
   async getPosts(pathUrl: string): Promise<any> {
-    const data:PostInterface = await fetchAPI(pathUrl)
+    const data: PostInterface = await fetchAPI(pathUrl)
     return data;
   }
 
   async getPostById(pathUrl: string): Promise<any> {
-    const data:PostInterface = await fetchAPI(pathUrl)
+    const data: PostInterface = await fetchAPI(pathUrl)
     return data;
   }
 }

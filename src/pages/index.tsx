@@ -2,16 +2,20 @@ import { useState } from "react";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 import PostCards from "@/components/PostCards";
 import PostCreator from "@/models/post/factory";
+import FeaturedMediaCreator from "@/models/featuredMedia/factory";
 import PostInterface from "@/models/post/interface"
-import Nav from "@/components/Nav";
+import Swal from "sweetalert2";
+import { useRouter } from "next/router";
 
 interface HomePageProps {
   _posts: PostInterface[];
 }
 
 export default function HomePage({ _posts }: InferGetStaticPropsType<typeof getStaticProps>) {
+  const router = useRouter();
+  const [postLength, setPostLength] = useState(_posts.length)
   const [posts, setPosts] = useState<PostInterface[]>(
-    _posts.map((p: unknown) => {
+    _posts.map((p: PostInterface) => {
       const _p = PostCreator.factory(p)
       return _p
     })
@@ -43,6 +47,56 @@ export default function HomePage({ _posts }: InferGetStaticPropsType<typeof getS
     setSortedPosts(posts);
   };
 
+  const loadMoreItems = async () => {
+    Swal.fire({
+      title: "Carregando mais posts",
+    })
+    Swal.showLoading();
+
+    let _p = PostCreator.factory();
+    console.log(postLength)
+    try {
+      const newPosts = await _p.getPosts(`/posts?categories=1288&categories=1309&categories=1317&offset=${postLength}`);
+      const nP: PostInterface[] = await Promise.all(newPosts.map(async (p: PostInterface) => {
+        const normalizedPost = PostCreator.factory(p);
+
+        if (p.featured_media) {
+
+          try {
+            let _fM = FeaturedMediaCreator.factory();
+            const featured_media = await _fM.getFeaturedMedias(`/media/${p.featured_media}`);
+            normalizedPost.featured_media = featured_media;
+          } catch (error) {
+            console.log(error)
+            Swal.fire(
+              'Ops!','Parece que todos tivemos um erro na Api, aguarde que voce será redirecionado', 'info'
+            )
+            router.push('/')
+            
+          }
+        }
+
+        return normalizedPost;
+      }));
+      const qtdUp = postLength + nP.length;
+
+      if (qtdUp === postLength) {
+        Swal.fire(
+          'Ops!', 'Parece que todos os Artigos dessa categoria ja foram carregados!', 'info'
+        )
+      };
+      setPostLength(qtdUp)
+      setSortedPosts([...sortedPosts, ...nP]);
+      Swal.close();
+    } catch (error) {
+      console.log(error)
+      Swal.fire(
+        'Ops!','Parece que todos tivemos um erro na Api, aguarde que voce será redirecionado', 'info'
+      )
+      router.push('/')
+    }
+
+  };
 
   return (
     <>
@@ -63,6 +117,10 @@ export default function HomePage({ _posts }: InferGetStaticPropsType<typeof getS
               <PostCards key={post.slug} post={post} />
             );
           })}
+
+        </div>
+        <div className="flex justify-center">
+          <button className="p-4 bg-teal-400" onClick={() => loadMoreItems()}>Carregar Mais</button>
         </div>
       </div>
     </>
@@ -72,6 +130,15 @@ export default function HomePage({ _posts }: InferGetStaticPropsType<typeof getS
 export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
   let _p = PostCreator.factory()
   const _posts = await _p.getPosts('/posts?categories=1288&categories=1309&categories=1317');
+
+  const postsWithMedia = await Promise.all(_posts.map(async (post: any) => {
+    if (post.featured_media) {
+      let _fM = FeaturedMediaCreator.factory()
+      const featured_media = await _fM.getFeaturedMedias(`/media/${post.featured_media}`);
+      post.featured_media = featured_media;
+    }
+    return post;
+  }));
 
   return {
     props: {

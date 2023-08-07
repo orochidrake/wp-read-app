@@ -9,7 +9,22 @@ interface PostCards{
 }
 
 export default function PostCards({ post }: PostCards) {
-  const imgPost = post.defaultImg ? post.defaultImg[0] : defaultImage
+  let imgPost: any = defaultImage
+
+  if(!post.featured_media.sourceUrl){
+
+    if(!post.featured_media.guid){
+      imgPost = defaultImage
+    }else{
+      imgPost = post.featured_media.guid.rendered 
+    }
+  }else{
+    imgPost = post.featured_media.sourceUrl
+  }
+
+  
+  const imgAlt = post.featured_media.altText ? post.featured_media.altText : post.title.rendered
+  const imgSize = post.featured_media.mediaDetails ? post.featured_media.mediaDetails.width : '100vw'
   const dateTemp = post.date.split('T')
   const dateFormated = dateTemp[0].split('-').reverse().join("/")
 
@@ -19,8 +34,9 @@ export default function PostCards({ post }: PostCards) {
         <div className="relative h-80 transition-all duration-200 ease-linear hover:-translate-y-[3px]">
           <Image
             src={imgPost}
+            sizes={`(max-width: ${imgSize}) 100vw, (max-width: ${imgSize}) 50vw, 33vw`}
             fill
-            alt={post.title.rendered}
+            alt={imgAlt}
             className="absolute rounded-md h-full w-full object-cover"
           />
         </div>

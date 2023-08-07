@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import { useAppContext } from "@/context/AppContext";
 import { useRouter } from "next/router";
+import FeaturedMediaCreator from "@/models/featuredMedia/factory";
 
 interface ReadLaterPage {
   _posts: PostInterface[];
@@ -89,8 +90,15 @@ export default function ReadLaterPage({ _posts }: InferGetServerSidePropsType<ty
 export const getServerSideProps: GetServerSideProps<ReadLaterPage> = async (ctx) => {
   const itemsId = ctx.query.itemsId;
   let _p = PostCreator.factory()
-  const _posts = await _p.getPosts(`/posts?include=${itemsId}`);
-
+  const _posts = await _p.getPosts(`/posts?include=${itemsId}&per_page=50`);
+  const postsWithMedia = await Promise.all(_posts.map(async (post:any) => {
+    if (post.featured_media) {
+      let _fM = FeaturedMediaCreator.factory()
+      const featured_media = await _fM.getFeaturedMedias(`/media/${post.featured_media}`);
+      post.featured_media = featured_media;
+    }
+    return post;
+  }));
 
   return {
     props: {

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { GetServerSideProps, GetStaticProps, InferGetStaticPropsType, InferGetServerSidePropsType } from "next";
+import { useState } from "react";
+import { GetServerSideProps } from "next";
 import PostCards from "@/components/PostCards";
 import PostCreator from "@/models/post/factory";
 import PostInterface from "@/models/post/interface"
@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import { useAppContext } from "@/context/AppContext";
 import { useRouter } from "next/router";
-import { redirect } from "next/dist/server/api-utils";
+import FeaturedMediaCreator from "@/models/featuredMedia/factory";
 
 interface FavoritePageProps {
   _posts: PostInterface[];
@@ -83,8 +83,17 @@ export const getServerSideProps: GetServerSideProps<FavoritePageProps> = async (
   const itemsId = ctx.query.itemsId;
 
   let _p = PostCreator.factory();
-  const _posts = await _p.getPosts(`/posts?include=${itemsId}`);
+  const _posts = await _p.getPosts(`/posts?include=${itemsId}&per_page=50`);
 
+  const postsWithMedia = await Promise.all(_posts.map(async (post:any) => {
+    if (post.featured_media) {
+      let _fM = FeaturedMediaCreator.factory()
+      const featured_media = await _fM.getFeaturedMedias(`/media/${post.featured_media}`);
+      post.featured_media = featured_media;
+    }
+    return post;
+  }));
+  
   return {
     props: {
       _posts
