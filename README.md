@@ -6,7 +6,7 @@ First, run the development server:
 
 ```bash
 create a .env file with
-NEXT_PUBLIC_WORDPRESS_API_ENDPOINT=https://endeavor.org.br/wp-json/wp/v2/
+NEXT_PUBLIC_WORDPRESS_API_ENDPOINT=https://endeavor.org.br/wp-json/wp/v2
 #or
 mv .env.example .env
 
